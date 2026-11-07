@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+public class Journal
+{
+    public List<Entry> _entries = new List<Entry>();
+
+    public void AddEntry(Entry newEntry)
+    {
+        _entries.Add(newEntry);
+    }
+
+    public void DisplayAll()
+    {
+        Console.WriteLine($"\n--- Journal Entries ({_entries.Count} total) ---");
+        foreach (Entry entry in _entries)
+        {
+            entry.Display();
+        }
+    }
+
+    public void SaveToFile(string file)
+    {
+        using (StreamWriter outputFile = new StreamWriter(file))
+        {
+            foreach (Entry entry in _entries)
+            {
+                outputFile.WriteLine($"{entry._date}~|~{entry._promptText}~|~{entry._entryText}~|~{entry._mood}");
+            }
+        }
+        Console.WriteLine("Journal saved successfully.");
+    }
+
+    public void LoadFromFile(string file)
+    {
+        if (!File.Exists(file))
+        {
+            Console.WriteLine("File not found.");
+            return;
+        }
+
+        _entries.Clear();
+        string[] lines = File.ReadAllLines(file);
+
+        foreach (string line in lines)
+        {
+            string[] parts = line.Split("~|~");
+
+            Entry loadedEntry = new Entry();
+            loadedEntry._date = parts[0];
+            loadedEntry._promptText = parts[1];
+            loadedEntry._entryText = parts[2];
+            loadedEntry._mood = parts.Length > 3 ? parts[3] : "Not specified";
+
+            _entries.Add(loadedEntry);
+        }
+        Console.WriteLine("Journal loaded successfully.");
+    }
+}
